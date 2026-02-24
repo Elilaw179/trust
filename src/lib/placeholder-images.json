@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "profile-user",
+      "description": "Professional profile photo for digital identity",
+      "imageUrl": "https://images.unsplash.com/photo-1595211877493-41a4e5f236b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdHxlbnwwfHx8fDE3NzE4ODE0MDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional headshot"
+    },
+    {
+      "id": "platform-logo-1",
+      "description": "Tech platform logo",
+      "imageUrl": "https://images.unsplash.com/photo-1636114666138-b5047ca8ec84?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhcHAlMjBsb2dvfGVufDB8fHx8MTc3MTg3ODc3MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "app logo"
+    },
+    {
+      "id": "platform-logo-2",
+      "description": "Finance platform logo",
+      "imageUrl": "https://images.unsplash.com/photo-1642480501876-90ed32b93033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmaW5hbmNlJTIwaWNvbnxlbnwwfHx8fDE3NzE5MzE1NjN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "finance icon"
+    }
+  ]
 }
