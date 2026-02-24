@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: 'Securely manage your digital identity and data sharing permissions.',
 };
 
-export default function RootLayout({
+export default function RootLayout({  
   children,
 }: Readonly<{
   children: React.ReactNode;
