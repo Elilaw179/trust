@@ -5,7 +5,7 @@ import { NavSidebar } from "@/components/layout/nav-sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Shield, CheckCircle2, ArrowRight, Activity, Smartphone, Loader2 } from "lucide-react"
+import { Shield, CheckCircle2, ArrowRight, Activity, Smartphone, Loader2, Lock, ShieldCheck, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
@@ -29,14 +29,14 @@ export default function Dashboard() {
 
   if (isAuthLoading || isDataLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <NavSidebar />
       <main className="flex-1 p-4 md:p-8 lg:p-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -47,8 +47,8 @@ export default function Dashboard() {
             <p className="text-muted-foreground">Manage your secure identity and sharing permissions.</p>
           </div>
           <div className="flex items-center gap-4">
-            <Badge variant="secondary" className="px-3 py-1 flex gap-2 items-center text-sm font-medium">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
+            <Badge variant="secondary" className="px-3 py-1 flex gap-2 items-center text-sm font-medium bg-green-500/10 text-green-600 border-green-200">
+              <CheckCircle2 className="w-4 h-4" />
               Verified Identity
             </Badge>
           </div>
@@ -87,9 +87,9 @@ export default function Dashboard() {
                   <h3 className="text-2xl font-bold">{displayName}</h3>
                   <p className="text-sm font-code text-muted-foreground">trust.id/{userData?.username || user?.email?.split('@')[0] || "user"}</p>
                   <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-                    <Badge variant="outline">Email Verified</Badge>
-                    <Badge variant="outline">Phone Verified</Badge>
-                    <Badge variant="outline">ID Document Verified</Badge>
+                    <Badge variant="outline" className="rounded-md">Email Verified</Badge>
+                    <Badge variant="outline" className="rounded-md">Phone Verified</Badge>
+                    <Badge variant="outline" className="rounded-md">ID Document Verified</Badge>
                   </div>
                 </div>
               </div>
@@ -119,65 +119,119 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="border-none shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg">Recent Consents</CardTitle>
-              <Link href="/permissions">
-                <Button variant="link" size="sm">Manage All</Button>
-              </Link>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { name: "Neon Analytics", date: "2 hours ago", status: "Approved", icon: PlaceHolderImages.find(i => i.id === "platform-logo-1")?.imageUrl },
-                  { name: "Vercel Connect", date: "Yesterday", status: "Pending", icon: PlaceHolderImages.find(i => i.id === "platform-logo-2")?.imageUrl },
-                ].map((app, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-border flex items-center justify-center overflow-hidden">
-                        <Image src={app.icon || ""} alt={app.name} width={40} height={40} className="object-cover object-center" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 space-y-6">
+            <Card className="border-none shadow-md">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg">Recent Consents</CardTitle>
+                <Link href="/permissions">
+                  <Button variant="link" size="sm">Manage All</Button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { name: "Neon Analytics", date: "2 hours ago", status: "Approved", icon: PlaceHolderImages.find(i => i.id === "platform-logo-1")?.imageUrl },
+                    { name: "Vercel Connect", date: "Yesterday", status: "Pending", icon: PlaceHolderImages.find(i => i.id === "platform-logo-2")?.imageUrl },
+                  ].map((app, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-secondary/50 transition-all border border-transparent hover:border-border">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg bg-border flex items-center justify-center overflow-hidden">
+                          <Image src={app.icon || ""} alt={app.name} width={40} height={40} className="object-cover object-center" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{app.name}</p>
+                          <p className="text-xs text-muted-foreground">{app.date}</p>
+                        </div>
+                      </div>
+                      <Badge variant={app.status === "Approved" ? "default" : "secondary"}>{app.status}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-md">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg">Security Activity</CardTitle>
+                <Link href="/activity">
+                  <Button variant="link" size="sm">View Log</Button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { event: "Login Attempt", detail: "Success - Chrome Windows", time: "10m ago", icon: Activity },
+                    { event: "ID Verified", detail: "Driver License Upload", time: "3d ago", icon: CheckCircle2 },
+                  ].map((act, i) => (
+                    <div key={i} className="flex items-start gap-4 p-3 hover:bg-secondary/30 rounded-xl transition-colors">
+                      <div className="mt-1 bg-primary/10 p-2 rounded-full">
+                        <act.icon className="w-4 h-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium">{app.name}</p>
-                        <p className="text-xs text-muted-foreground">{app.date}</p>
+                        <p className="font-medium text-sm">{act.event}</p>
+                        <p className="text-xs text-muted-foreground">{act.detail} • {act.time}</p>
                       </div>
                     </div>
-                    <Badge variant={app.status === "Approved" ? "default" : "secondary"}>{app.status}</Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card className="border-none shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg">Security Activity</CardTitle>
-              <Link href="/activity">
-                <Button variant="link" size="sm">View Log</Button>
-              </Link>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { event: "Login Attempt", detail: "Success - Chrome Windows", time: "10m ago", icon: Activity },
-                  { event: "ID Verified", detail: "Driver License Upload", time: "3d ago", icon: CheckCircle2 },
-                ].map((act, i) => (
-                  <div key={i} className="flex items-start gap-4 p-3 hover:bg-secondary/30 rounded-lg transition-colors">
-                    <div className="mt-1 bg-primary/10 p-2 rounded-full">
-                      <act.icon className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{act.event}</p>
-                      <p className="text-xs text-muted-foreground">{act.detail} • {act.time}</p>
-                    </div>
-                  </div>
-                ))}
+          <div className="lg:col-span-4 space-y-6">
+            <Card className="border-none shadow-md bg-primary text-primary-foreground overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl" />
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ShieldCheck className="w-5 h-5" />
+                  Security Checklist
+                </CardTitle>
+                <CardDescription className="text-primary-foreground/70">Steps to reach L3 trust level.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <CheckItem label="Email verified" completed />
+                <CheckItem label="Phone verified" completed />
+                <CheckItem label="Government ID" completed />
+                <CheckItem label="Biometric Setup" />
+                <CheckItem label="Secure PIN" />
+              </CardContent>
+              <div className="p-4 pt-0">
+                <Link href="/settings">
+                  <Button variant="secondary" className="w-full gap-2">
+                    Complete Setup <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
               </div>
-            </CardContent>
-          </Card>
+            </Card>
+
+            <Card className="border-none shadow-md">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-accent" />
+                  Pro Tip
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Regularly review your **Recent Consents** to ensure no platform has access to data it no longer needs.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </main>
+    </div>
+  )
+}
+
+function CheckItem({ label, completed }: { label: string; completed?: boolean }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${completed ? 'bg-white text-primary border-white' : 'border-white/30'}`}>
+        {completed && <CheckCircle2 className="w-3 h-3" />}
+      </div>
+      <span className={`text-sm ${completed ? 'font-medium' : 'text-white/60'}`}>{label}</span>
     </div>
   )
 }

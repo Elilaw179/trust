@@ -146,24 +146,26 @@ export default function IdentityPage() {
         </header>
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          <Card className="xl:col-span-8 border-none shadow-2xl overflow-hidden rounded-2xl bg-card">
-            <div className="h-32 bg-gradient-to-r from-primary via-accent to-primary" />
-            <div className="px-8 pb-8 -mt-16">
-              <div className="flex flex-col md:flex-row items-end gap-6 mb-8">
+          <Card className="xl:col-span-8 border-none shadow-2xl overflow-hidden rounded-3xl bg-card">
+            <div className="h-40 bg-gradient-to-r from-primary via-accent to-primary relative">
+               <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]" />
+            </div>
+            <div className="px-8 pb-8 -mt-12">
+              <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-8 text-center md:text-left">
                 <div className="relative group cursor-pointer" onClick={handleTriggerFileInput}>
-                  <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-background shadow-xl bg-card">
+                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-background shadow-xl bg-card transition-all duration-300 group-hover:scale-105">
                     <Image 
                       src={profileImage} 
                       alt="Profile" 
-                      width={128} 
-                      height={128} 
-                      className="object-cover object-center w-full h-full hover:scale-105 transition-transform duration-500"
+                      width={112} 
+                      height={112} 
+                      className="object-cover object-center w-full h-full"
                       priority
                     />
                   </div>
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white rounded-3xl">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white rounded-full">
                     <Camera className="w-6 h-6 mb-1" />
-                    <span className="text-[10px] font-bold uppercase">Change Photo</span>
+                    <span className="text-[8px] font-bold uppercase">Update</span>
                   </div>
                   <input 
                     type="file" 
@@ -174,26 +176,26 @@ export default function IdentityPage() {
                   />
                 </div>
                 <div className="flex-1 pb-2">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col md:flex-row items-center gap-3">
                     <h2 className="text-2xl font-bold font-headline">{displayName}</h2>
-                    <Badge className="bg-green-500 hover:bg-green-600 flex gap-1">
+                    <Badge className="bg-green-500 hover:bg-green-600 flex gap-1 rounded-md">
                       <CheckCircle2 className="w-3 h-3" /> Verified
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground font-code">@{displayUsername}</p>
+                  <p className="text-muted-foreground font-code text-sm">@{displayUsername}</p>
                 </div>
-                <div className="flex gap-2 w-full md:w-auto">
-                  <Button variant="outline" size="sm" className="gap-2 flex-1 md:flex-none" onClick={handleExport}>
-                    <Download className="w-4 h-4" /> Export Card
+                <div className="flex flex-wrap justify-center gap-2 w-full md:w-auto">
+                  <Button variant="outline" size="sm" className="gap-2 h-10 px-4 rounded-xl" onClick={handleExport}>
+                    <Download className="w-4 h-4" /> Export
                   </Button>
                   
                   <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button size="sm" className="gap-2 bg-primary flex-1 md:flex-none">
+                      <Button size="sm" className="gap-2 bg-primary h-10 px-4 rounded-xl shadow-lg shadow-primary/20">
                         <Edit3 className="w-4 h-4" /> Edit Profile
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="rounded-3xl">
                       <form onSubmit={handleUpdateProfile}>
                         <DialogHeader>
                           <DialogTitle>Edit Identity Profile</DialogTitle>
@@ -203,7 +205,7 @@ export default function IdentityPage() {
                         </DialogHeader>
                         <div className="space-y-4 py-4">
                           <div className="flex justify-center mb-4">
-                            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20">
+                            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 bg-secondary">
                               <Image 
                                 src={profileImage} 
                                 alt="Preview" 
@@ -215,21 +217,21 @@ export default function IdentityPage() {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="fullName">Full Name</Label>
-                            <Input id="fullName" name="fullName" defaultValue={displayName} required />
+                            <Input id="fullName" name="fullName" defaultValue={displayName} required className="rounded-xl" />
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="username">Trust ID Username</Label>
-                            <Input id="username" name="username" defaultValue={displayUsername} required />
+                            <Input id="username" name="username" defaultValue={displayUsername} required className="rounded-xl" />
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="profilePhotoUrl">Profile Photo URL</Label>
-                            <Input id="profilePhotoUrl" name="profilePhotoUrl" defaultValue={profileImage} placeholder="https://example.com/photo.jpg" />
-                            <p className="text-[10px] text-muted-foreground">You can also click your photo directly on the profile page to upload from your device.</p>
+                            <Input id="profilePhotoUrl" name="profilePhotoUrl" defaultValue={profileImage} placeholder="https://example.com/photo.jpg" className="rounded-xl" />
+                            <p className="text-[10px] text-muted-foreground">You can also click your photo directly on the profile page to upload.</p>
                           </div>
                         </div>
-                        <DialogFooter>
-                          <Button type="button" variant="ghost" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-                          <Button type="submit" disabled={isUpdating}>
+                        <DialogFooter className="gap-2">
+                          <Button type="button" variant="ghost" className="rounded-xl" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+                          <Button type="submit" className="rounded-xl px-8" disabled={isUpdating}>
                             {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
                           </Button>
                         </DialogFooter>
@@ -239,9 +241,9 @@ export default function IdentityPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 pt-4 border-t">
                 <div className="space-y-6">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Contact Information</h3>
+                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Contact Information</h3>
                   <div className="space-y-4">
                     <InfoItem icon={Mail} label="Email Address" value={user?.email || "Not provided"} verified />
                     <InfoItem icon={Phone} label="Phone Number" value={userData?.phoneNumber || user?.phoneNumber || "Not provided"} verified />
@@ -249,7 +251,7 @@ export default function IdentityPage() {
                   </div>
                 </div>
                 <div className="space-y-6">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Verification Details</h3>
+                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Verification Details</h3>
                   <div className="space-y-4">
                     <InfoItem icon={ShieldCheck} label="Identity Score" value="98 / 100" />
                     <InfoItem icon={Calendar} label="Member Since" value={userData?.createdAt ? (typeof userData.createdAt === 'string' ? new Date(userData.createdAt).toLocaleDateString() : new Date(userData.createdAt.seconds * 1000).toLocaleDateString()) : "October 2023"} />
@@ -261,40 +263,55 @@ export default function IdentityPage() {
           </Card>
 
           <div className="xl:col-span-4 space-y-6">
-            <Card className="border-none shadow-md">
-              <CardHeader>
+            <Card className="border-none shadow-md overflow-hidden rounded-3xl">
+              <CardHeader className="bg-secondary/30">
                 <CardTitle className="text-lg">Trust Level</CardTitle>
-                <CardDescription>Your current standing on the platform.</CardDescription>
+                <CardDescription>Your standing on the Trust ID network.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{userData?.trustLevel || "Level 2: Verified User"}</span>
-                  <span className="text-primary font-bold">Progress to L3</span>
+              <CardContent className="space-y-6 pt-6">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-bold text-primary">{userData?.trustLevel || "Level 2: Verified"}</span>
+                    <span className="text-muted-foreground font-medium">Progress to L3</span>
+                  </div>
+                  <div className="h-3 w-full bg-secondary rounded-full overflow-hidden">
+                    <div className="h-full bg-primary w-[85%] transition-all duration-1000" />
+                  </div>
                 </div>
-                <div className="h-3 w-full bg-secondary rounded-full overflow-hidden">
-                  <div className="h-full bg-primary w-[85%] transition-all duration-1000" />
+                
+                <div className="grid grid-cols-2 gap-3">
+                   <div className="p-3 rounded-2xl bg-secondary/50 border text-center">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">Endorsements</p>
+                      <p className="text-xl font-bold">12</p>
+                   </div>
+                   <div className="p-3 rounded-2xl bg-secondary/50 border text-center">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">Data Requests</p>
+                      <p className="text-xl font-bold">45</p>
+                   </div>
                 </div>
-                <ul className="text-xs text-muted-foreground space-y-2 list-disc list-inside">
-                  <li>Can access financial platforms</li>
-                  <li>Enabled biometric sign-in</li>
-                  <li>Eligible for enterprise identity</li>
+
+                <ul className="text-xs text-muted-foreground space-y-2 list-none">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-500" /> Financial platforms access enabled</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-500" /> Biometric sign-in authorized</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-500" /> Eligible for enterprise ID</li>
                 </ul>
               </CardContent>
-              <CardFooter>
-                <Button variant="secondary" className="w-full">Upgrade to Level 3</Button>
+              <CardFooter className="pb-6">
+                <Button variant="secondary" className="w-full rounded-xl font-bold">Upgrade to Level 3</Button>
               </CardFooter>
             </Card>
 
-            <Card className="border-none shadow-md bg-accent text-accent-foreground">
+            <Card className="border-none shadow-md bg-accent text-accent-foreground rounded-3xl relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 blur-2xl" />
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5" /> 
-                  Reusable Identity
+                  Private Identity
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm opacity-90 leading-relaxed">
-                  Your identity is encrypted and stored locally. You only share what you want, when you want.
+                  Your identity is encrypted and stored securely. You only share what you want, when you want. No third-party tracking.
                 </p>
               </CardContent>
             </Card>
@@ -308,13 +325,13 @@ export default function IdentityPage() {
 function InfoItem({ icon: Icon, label, value, verified }: { icon: any, label: string, value: string, verified?: boolean }) {
   return (
     <div className="flex gap-4 group">
-      <div className="p-2 rounded-lg bg-secondary group-hover:bg-primary/10 transition-colors shrink-0">
-        <Icon className="w-5 h-5 text-muted-foreground" />
+      <div className="p-2.5 rounded-2xl bg-secondary group-hover:bg-primary/10 transition-colors shrink-0">
+        <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="text-xs text-muted-foreground font-medium">{label}</p>
-          {verified && <Badge className="text-[10px] h-4 px-1 bg-green-500/10 text-green-600 border-green-200">Verified</Badge>}
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{label}</p>
+          {verified && <Badge className="text-[8px] h-3.5 px-1 bg-green-500/10 text-green-600 border-green-200">Verified</Badge>}
         </div>
         <p className="text-sm font-semibold truncate">{value}</p>
       </div>

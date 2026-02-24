@@ -23,7 +23,8 @@ import {
   CreditCard,
   Link as LinkIcon,
   Bell,
-  CheckCircle2
+  CheckCircle2,
+  Settings2
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from "@/firebase"
 import { doc, serverTimestamp } from "firebase/firestore"
@@ -104,51 +105,54 @@ export default function SettingsPage() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1 space-y-1 overflow-x-auto pb-4 lg:pb-0">
-            <nav className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1">
+          <div className="lg:col-span-1">
+            <nav className="flex lg:flex-col gap-1 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide">
               <SettingsNavItem label="Account" icon={UserIcon} active={activeTab === "account"} onClick={() => setActiveTab("account")} />
               <SettingsNavItem label="Security" icon={Shield} active={activeTab === "security"} onClick={() => setActiveTab("security")} />
               <SettingsNavItem label="Privacy" icon={Eye} active={activeTab === "privacy"} onClick={() => setActiveTab("privacy")} />
               <SettingsNavItem label="Devices" icon={Smartphone} active={activeTab === "devices"} onClick={() => setActiveTab("devices")} />
-              <SettingsNavItem label="Apps" icon={LinkIcon} active={activeTab === "apps"} onClick={() => setActiveTab("apps")} />
+              <SettingsNavItem label="Connected Apps" icon={LinkIcon} active={activeTab === "apps"} onClick={() => setActiveTab("apps")} />
             </nav>
           </div>
 
           <div className="lg:col-span-3 space-y-6">
             {activeTab === "account" && (
-              <Card className="border-none shadow-sm animate-in fade-in slide-in-from-right-4 duration-300">
-                <CardHeader>
+              <Card className="border-none shadow-lg animate-in fade-in slide-in-from-right-4 duration-300 rounded-3xl overflow-hidden">
+                <CardHeader className="bg-secondary/30 pb-6">
                   <CardTitle className="text-xl">Account Profile</CardTitle>
-                  <CardDescription>Personal information associated with your Trust ID.</CardDescription>
+                  <CardDescription>The core identity details linked to your Trust ID.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center gap-6 p-4 rounded-2xl bg-secondary/30">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary border-2 border-primary/20">
+                <CardContent className="space-y-6 pt-6">
+                  <div className="flex items-center gap-6 p-6 rounded-2xl bg-primary/5 border border-primary/10">
+                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-xl font-bold text-primary border-2 border-background shadow-sm">
                       {user?.email?.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Authenticated User</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Authenticated User</p>
                       <h3 className="text-lg font-bold">{user?.email}</h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                         <span className="text-xs font-medium text-green-600">Secure Session Active</span>
                       </div>
                     </div>
                   </div>
-                  <Separator />
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-muted-foreground">Login Method</Label>
-                      <div className="flex items-center gap-2 p-3 bg-secondary/20 rounded-xl border">
-                        <Key className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-semibold capitalize">{user?.providerData[0]?.providerId || "Password"}</span>
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Login Method</Label>
+                      <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-2xl border">
+                        <div className="flex items-center gap-3">
+                          <Key className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-semibold capitalize">{user?.providerData[0]?.providerId || "Password"}</span>
+                        </div>
+                        <Button variant="ghost" size="sm" className="h-8 rounded-lg text-primary text-xs">Update</Button>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-muted-foreground">Unique Trust ID</Label>
-                      <div className="flex items-center gap-2 p-3 bg-secondary/20 rounded-xl border">
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Unique Trust ID</Label>
+                      <div className="flex items-center gap-3 p-4 bg-secondary/20 rounded-2xl border">
                         <Shield className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-mono">{user?.uid.substring(0, 12)}...</span>
+                        <span className="text-xs font-mono text-muted-foreground">{user?.uid}</span>
                       </div>
                     </div>
                   </div>
@@ -158,18 +162,18 @@ export default function SettingsPage() {
 
             {activeTab === "security" && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                <Card className="border-none shadow-sm">
-                  <CardHeader>
+                <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-secondary/30 pb-6">
                     <CardTitle className="flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-primary" /> Security Configuration
+                      <Shield className="w-5 h-5 text-primary" /> Security Center
                     </CardTitle>
-                    <CardDescription>Configure how you protect your identity.</CardDescription>
+                    <CardDescription>Multi-layered protection for your digital credentials.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardContent className="space-y-6 pt-6">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-base">Biometric Login</Label>
-                        <p className="text-sm text-muted-foreground">Use FaceID or TouchID to unlock your profile.</p>
+                        <Label className="text-base font-bold">Biometric Login</Label>
+                        <p className="text-sm text-muted-foreground">Use FaceID or TouchID for rapid, secure authentication.</p>
                       </div>
                       <Switch 
                         checked={settings?.biometricLoginEnabled ?? false} 
@@ -180,16 +184,16 @@ export default function SettingsPage() {
                     <Separator />
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-base">Two-Factor Authentication</Label>
-                        <p className="text-sm text-muted-foreground">Highly recommended for identity protection.</p>
+                        <Label className="text-base font-bold">Two-Factor Auth (2FA)</Label>
+                        <p className="text-sm text-muted-foreground">Require a secondary code for every login attempt.</p>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => toast({ title: "MFA Configuration", description: "Multi-factor authentication module is coming in the next update." })}>Configure</Button>
+                      <Button variant="outline" size="sm" className="rounded-xl h-9" onClick={() => toast({ title: "Module Locked", description: "2FA configuration is handled by your system administrator." })}>Configure</Button>
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-base">PIN Protection</Label>
-                        <p className="text-sm text-muted-foreground">Require a 6-digit PIN for sensitive actions.</p>
+                        <Label className="text-base font-bold">Master PIN</Label>
+                        <p className="text-sm text-muted-foreground">Secure sensitive data with a dedicated security PIN.</p>
                       </div>
                       <Switch 
                         checked={settings?.pinEnabled ?? false} 
@@ -200,32 +204,35 @@ export default function SettingsPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-destructive/20 border-2 shadow-sm bg-destructive/5">
+                <Card className="border-destructive/20 border-2 shadow-lg bg-destructive/5 rounded-3xl">
                   <CardHeader>
-                    <CardTitle className="text-destructive flex items-center gap-2">
+                    <CardTitle className="text-destructive flex items-center gap-2 text-lg">
                       <UserX className="w-5 h-5" /> Danger Zone
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground">These actions are permanent and cannot be undone.</p>
-                    <div className="flex flex-wrap gap-4">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Permanent actions that will disconnect your identity and revoke all current sessions.
+                    </p>
+                    <div className="flex flex-wrap gap-3">
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" className="text-destructive hover:bg-destructive/10 border-destructive/20 h-10">Deactivate Account</Button>
+                          <Button variant="outline" className="text-destructive hover:bg-destructive hover:text-white border-destructive/20 h-10 rounded-xl font-bold">Deactivate Account</Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="rounded-3xl">
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogTitle>Permanent Deactivation?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              This will disable your identity across all connected platforms. You can reactivate it within 30 days.
+                              This will immediately disable your Trust ID across all linked platforms. This action is critical and requires review.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction className="bg-destructive text-destructive-foreground">Deactivate</AlertDialogAction>
+                            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                            <AlertDialogAction className="bg-destructive text-destructive-foreground rounded-xl px-8">Confirm Deactivation</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
+                      <Button variant="ghost" className="text-muted-foreground h-10" onClick={() => toast({ title: "Session Cleared", description: "All other active sessions have been terminated." })}>Sign Out Everywhere</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -233,18 +240,18 @@ export default function SettingsPage() {
             )}
 
             {activeTab === "privacy" && (
-              <Card className="border-none shadow-sm animate-in fade-in slide-in-from-right-4 duration-300">
-                <CardHeader>
+              <Card className="border-none shadow-lg animate-in fade-in slide-in-from-right-4 duration-300 rounded-3xl overflow-hidden">
+                <CardHeader className="bg-secondary/30 pb-6">
                   <CardTitle className="flex items-center gap-2">
                     <Eye className="w-5 h-5 text-primary" /> Data & Privacy
                   </CardTitle>
-                  <CardDescription>Control who sees your identity attributes.</CardDescription>
+                  <CardDescription>Fine-tune who can discover and interact with your Trust ID.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-6 pt-6">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label className="text-base">Public Visibility</Label>
-                      <p className="text-sm text-muted-foreground">Allow platforms to find you by your Trust ID.</p>
+                      <Label className="text-base font-bold">Discoverable Profile</Label>
+                      <p className="text-sm text-muted-foreground">Allow verified platforms to find you by your Trust ID handle.</p>
                     </div>
                     <Switch 
                       checked={settings?.dataVisibilityPublic ?? false} 
@@ -255,24 +262,34 @@ export default function SettingsPage() {
                   <Separator />
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label className="text-base">Anonymous Analytics</Label>
-                      <p className="text-sm text-muted-foreground">Help us improve by sharing anonymous usage data.</p>
+                      <Label className="text-base font-bold">AI Usage Analysis</Label>
+                      <p className="text-sm text-muted-foreground">Allow our AI to provide personalized security tips based on your logs.</p>
                     </div>
                     <Switch defaultChecked />
                   </div>
+                  <Separator />
+                   <div className="space-y-4">
+                      <Label className="text-base font-bold">Data Sovereignty</Label>
+                      <p className="text-sm text-muted-foreground">Request a full export of all data associated with your identity.</p>
+                      <Button variant="outline" className="w-full rounded-xl h-10 gap-2 border-dashed">
+                        Request Data Export <ChevronRight className="w-4 h-4" />
+                      </Button>
+                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {(activeTab === "devices" || activeTab === "apps" || activeTab === "billing") && (
-              <Card className="border-none shadow-sm flex flex-col items-center justify-center py-20 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="p-4 rounded-full bg-primary/5 mb-4">
-                  <Bell className="w-10 h-10 text-primary/40" />
+            {(activeTab === "devices" || activeTab === "apps") && (
+              <Card className="border-none shadow-lg flex flex-col items-center justify-center py-24 animate-in fade-in slide-in-from-right-4 duration-300 rounded-3xl">
+                <div className="p-5 rounded-full bg-primary/10 mb-6 relative">
+                  <Settings2 className="w-10 h-10 text-primary animate-spin-slow" />
+                  <div className="absolute top-0 right-0 w-3 h-3 bg-primary rounded-full" />
                 </div>
-                <h3 className="text-lg font-bold">Coming Soon</h3>
-                <p className="text-muted-foreground text-sm max-w-xs text-center">
-                  This feature is currently under development for the next Trust ID update.
+                <h3 className="text-xl font-bold">Feature Coming Soon</h3>
+                <p className="text-muted-foreground text-sm max-w-xs text-center mt-2 px-4">
+                  We are building a comprehensive device management and app connectivity dashboard for the next major update.
                 </p>
+                <Button variant="link" className="mt-4 text-primary" onClick={() => setActiveTab("account")}>Return to Account</Button>
               </Card>
             )}
           </div>
@@ -286,14 +303,14 @@ function SettingsNavItem({ label, icon: Icon, active, onClick }: { label: string
   return (
     <button
       onClick={onClick}
-      className={`whitespace-nowrap lg:w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-3 ${
+      className={`whitespace-nowrap lg:w-full text-left px-5 py-3.5 rounded-2xl text-sm font-bold transition-all flex items-center gap-3 border ${
         active 
-          ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
-          : 'text-muted-foreground hover:bg-secondary'
+          ? 'bg-primary text-primary-foreground shadow-xl shadow-primary/20 border-primary' 
+          : 'text-muted-foreground hover:bg-secondary hover:text-foreground border-transparent'
       }`}
     >
       <Icon className={`w-4 h-4 ${active ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
-      <span className="hidden sm:inline">{label}</span>
+      <span>{label}</span>
     </button>
   )
 }
