@@ -1,0 +1,148 @@
+
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Shield, UserPlus, Mail, Lock, User, ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { useAuth, useUser } from "@/firebase"
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { useToast } from "@/hooks/use-toast"
+
+export default function RegisterPage() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const auth = useAuth()
+  const { user } = useUser()
+  const router = useRouter()
+  const { toast } = useToast()
+
+  useEffect(() => {
+    if (user) {
+      router.push("/")
+    }
+  }, [user, router])
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (password !== confirmPassword) {
+      return toast({
+        variant: "destructive",
+        title: "Passwords mismatch",
+        description: "Please make sure both passwords are the same."
+      })
+    }
+    setLoading(true)
+    try {
+      await createUserWithEmailAndPassword(auth, email, password)
+      toast({
+        title: "Account Created!",
+        description: "Welcome to Trust ID. Your secure identity is being prepared."
+      })
+      router.push("/")
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Registration Failed",
+        description: err.message || "Could not create account at this time."
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent rounded-full blur-[120px]" />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        <div className="flex justify-center mb-8">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary p-3 rounded-2xl">
+              <Shield className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <h1 className="text-3xl font-headline font-bold">Trust ID</h1>
+          </div>
+        </div>
+
+        <Card className="border-none shadow-2xl rounded-3xl overflow-hidden bg-card/80 backdrop-blur-xl">
+          <CardHeader className="space-y-1 pb-6">
+            <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+            <CardDescription>Start your journey to a secure digital identity.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleRegister} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="name@example.com" 
+                    className="pl-10"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    className="pl-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input 
+                    id="confirm-password" 
+                    type="password" 
+                    className="pl-10"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <Button type="submit" className="w-full h-11 text-base font-bold gap-2 mt-2" disabled={loading}>
+                {loading ? "Creating account..." : (
+                  <>
+                    Create Account <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="flex flex-col gap-4 border-t pt-6">
+            <div className="text-sm text-center text-muted-foreground">
+              Already have an account?{" "}
+              <Link href="/login" className="text-primary font-bold hover:underline">
+                Sign In
+              </Link>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
+  )
+}
