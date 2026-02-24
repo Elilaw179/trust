@@ -1,6 +1,7 @@
+
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { NavSidebar } from "@/components/layout/nav-sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -41,6 +42,7 @@ export default function IdentityPage() {
   const { toast } = useToast()
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const userRef = useMemoFirebase(() => {
     if (!firestore || !user) return null
@@ -65,6 +67,31 @@ export default function IdentityPage() {
     }, 1500)
   }
 
+  const handleTriggerFileInput = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !userRef || !user) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const dataUri = event.target?.result as string
+      
+      setDocumentNonBlocking(userRef, {
+        profilePhotoUrl: dataUri,
+        updatedAt: serverTimestamp(),
+      }, { merge: true })
+
+      toast({
+        title: "Photo Updated",
+        description: "Your new identity portrait has been synchronized."
+      })
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleUpdateProfile = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!userRef || !user) return
@@ -79,7 +106,7 @@ export default function IdentityPage() {
       id: user.uid,
       fullName,
       username,
-      profilePhotoUrl,
+      profilePhotoUrl: profilePhotoUrl || profileImage,
       updatedAt: serverTimestamp(),
       phoneNumber: user.phoneNumber || "+0 000 000 0000",
       verificationStatus: "Verified",
@@ -123,7 +150,7 @@ export default function IdentityPage() {
             <div className="h-32 bg-gradient-to-r from-primary via-accent to-primary" />
             <div className="px-8 pb-8 -mt-16">
               <div className="flex flex-col md:flex-row items-end gap-6 mb-8">
-                <div className="relative group">
+                <div className="relative group cursor-pointer" onClick={handleTriggerFileInput}>
                   <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-background shadow-xl bg-card">
                     <Image 
                       src={profileImage} 
@@ -133,12 +160,17 @@ export default function IdentityPage() {
                       className="object-cover w-full h-full"
                     />
                   </div>
-                  <button 
-                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white rounded-3xl"
-                    onClick={() => setIsEditDialogOpen(true)}
-                  >
-                    <Camera className="w-6 h-6" />
-                  </button>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white rounded-3xl">
+                    <Camera className="w-6 h-6 mb-1" />
+                    <span className="text-[10px] font-bold uppercase">Change Photo</span>
+                  </div>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleFileChange} 
+                  />
                 </div>
                 <div className="flex-1 pb-2">
                   <div className="flex items-center gap-3">
@@ -180,7 +212,7 @@ export default function IdentityPage() {
                           <div className="space-y-2">
                             <Label htmlFor="profilePhotoUrl">Profile Photo URL</Label>
                             <Input id="profilePhotoUrl" name="profilePhotoUrl" defaultValue={profileImage} placeholder="https://example.com/photo.jpg" />
-                            <p className="text-[10px] text-muted-foreground">Provide a direct link to an image (JPEG/PNG/WebP).</p>
+                            <p className="text-[10px] text-muted-foreground">You can also click your photo directly to upload an image from your device.</p>
                           </div>
                         </div>
                         <DialogFooter>
