@@ -1,4 +1,3 @@
-
 "use client"
 
 import { NavSidebar } from "@/components/layout/nav-sidebar"
@@ -9,13 +8,25 @@ import { Shield, CheckCircle2, ArrowRight, Activity, Smartphone, Loader2 } from 
 import Link from "next/link"
 import Image from "next/image"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
-import { useUser } from "@/firebase"
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase"
+import { doc } from "firebase/firestore"
 
 export default function Dashboard() {
-  const { user, isUserLoading } = useUser()
-  const userImage = PlaceHolderImages.find(img => img.id === "profile-user")
+  const { user, isUserLoading: isAuthLoading } = useUser()
+  const firestore = useFirestore()
 
-  if (isUserLoading) {
+  const userRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null
+    return doc(firestore, "users", user.uid)
+  }, [firestore, user])
+
+  const { data: userData, isLoading: isDataLoading } = useDoc(userRef)
+
+  const defaultUserImage = PlaceHolderImages.find(img => img.id === "profile-user")
+  const profileImage = userData?.profilePhotoUrl || defaultUserImage?.imageUrl || ""
+  const displayName = userData?.fullName || user?.displayName || user?.email?.split('@')[0] || "User"
+
+  if (isAuthLoading || isDataLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -30,7 +41,7 @@ export default function Dashboard() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-headline font-bold text-foreground">
-              Welcome back, {user?.displayName || user?.email?.split('@')[0] || "User"}
+              Welcome back, {displayName}
             </h1>
             <p className="text-muted-foreground">Manage your secure identity and sharing permissions.</p>
           </div>
@@ -58,13 +69,13 @@ export default function Dashboard() {
             <CardContent>
               <div className="flex flex-col sm:flex-row items-center gap-6 mt-4">
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-background shadow-xl ring-2 ring-primary/20">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-background shadow-xl ring-2 ring-primary/20 bg-card">
                     <Image 
-                      src={userImage?.imageUrl || ""} 
+                      src={profileImage} 
                       alt="Profile" 
                       width={96} 
                       height={96} 
-                      className="object-cover"
+                      className="object-cover w-full h-full"
                     />
                   </div>
                   <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1.5 rounded-full border-2 border-background">
@@ -72,8 +83,8 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="space-y-2 text-center sm:text-left">
-                  <h3 className="text-2xl font-bold">{user?.displayName || "Elisha Sunday"}</h3>
-                  <p className="text-sm font-code text-muted-foreground">trust.id/{user?.email?.split('@')[0] || "user"}</p>
+                  <h3 className="text-2xl font-bold">{displayName}</h3>
+                  <p className="text-sm font-code text-muted-foreground">trust.id/{userData?.username || user?.email?.split('@')[0] || "user"}</p>
                   <div className="flex flex-wrap justify-center sm:justify-start gap-2">
                     <Badge variant="outline">Email Verified</Badge>
                     <Badge variant="outline">Phone Verified</Badge>

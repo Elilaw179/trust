@@ -49,14 +49,14 @@ export default function IdentityPage() {
 
   const { data: userData, isLoading: isDataLoading } = useDoc(userRef)
 
-  const userImage = PlaceHolderImages.find(img => img.id === "profile-user")
+  const defaultUserImage = PlaceHolderImages.find(img => img.id === "profile-user")
+  const profileImage = userData?.profilePhotoUrl || defaultUserImage?.imageUrl || ""
 
   const handleExport = () => {
     toast({
       title: "Export Started",
       description: "Your secure digital identity card is being prepared for download."
     })
-    // Simulate export delay
     setTimeout(() => {
       toast({
         title: "Success",
@@ -73,13 +73,14 @@ export default function IdentityPage() {
     const formData = new FormData(e.currentTarget)
     const fullName = formData.get("fullName") as string
     const username = formData.get("username") as string
+    const profilePhotoUrl = formData.get("profilePhotoUrl") as string
 
     setDocumentNonBlocking(userRef, {
       id: user.uid,
       fullName,
       username,
+      profilePhotoUrl,
       updatedAt: serverTimestamp(),
-      // Ensure defaults for required fields if it's the first update
       phoneNumber: user.phoneNumber || "+0 000 000 0000",
       verificationStatus: "Verified",
       trustLevel: "Level 2",
@@ -118,7 +119,6 @@ export default function IdentityPage() {
         </header>
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          {/* Main Card */}
           <Card className="xl:col-span-8 border-none shadow-2xl overflow-hidden rounded-2xl bg-card">
             <div className="h-32 bg-gradient-to-r from-primary via-accent to-primary" />
             <div className="px-8 pb-8 -mt-16">
@@ -126,14 +126,17 @@ export default function IdentityPage() {
                 <div className="relative group">
                   <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-background shadow-xl bg-card">
                     <Image 
-                      src={userImage?.imageUrl || ""} 
+                      src={profileImage} 
                       alt="Profile" 
                       width={128} 
                       height={128} 
-                      className="object-cover"
+                      className="object-cover w-full h-full"
                     />
                   </div>
-                  <button className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white rounded-3xl">
+                  <button 
+                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white rounded-3xl"
+                    onClick={() => setIsEditDialogOpen(true)}
+                  >
                     <Camera className="w-6 h-6" />
                   </button>
                 </div>
@@ -174,6 +177,11 @@ export default function IdentityPage() {
                             <Label htmlFor="username">Trust ID Username</Label>
                             <Input id="username" name="username" defaultValue={displayUsername} required />
                           </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="profilePhotoUrl">Profile Photo URL</Label>
+                            <Input id="profilePhotoUrl" name="profilePhotoUrl" defaultValue={profileImage} placeholder="https://example.com/photo.jpg" />
+                            <p className="text-[10px] text-muted-foreground">Provide a direct link to an image (JPEG/PNG/WebP).</p>
+                          </div>
                         </div>
                         <DialogFooter>
                           <Button type="button" variant="ghost" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
@@ -200,15 +208,14 @@ export default function IdentityPage() {
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Verification Details</h3>
                   <div className="space-y-4">
                     <InfoItem icon={ShieldCheck} label="Identity Score" value="98 / 100" />
-                    <InfoItem icon={Calendar} label="Member Since" value={userData?.createdAt ? new Date(userData.createdAt.seconds * 1000).toLocaleDateString() : "October 2023"} />
-                    <InfoItem icon={History} label="Last Verified" value="2 days ago" />
+                    <InfoItem icon={Calendar} label="Member Since" value={userData?.createdAt ? (typeof userData.createdAt === 'string' ? new Date(userData.createdAt).toLocaleDateString() : new Date(userData.createdAt.seconds * 1000).toLocaleDateString()) : "October 2023"} />
+                    <InfoItem icon={History} label="Last Verified" value="Recently" />
                   </div>
                 </div>
               </div>
             </div>
           </Card>
 
-          {/* Verification Stats */}
           <div className="xl:col-span-4 space-y-6">
             <Card className="border-none shadow-md">
               <CardHeader>
