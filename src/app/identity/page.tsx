@@ -157,7 +157,8 @@ export default function IdentityPage() {
                       alt="Profile" 
                       width={128} 
                       height={128} 
-                      className="object-cover w-full h-full"
+                      className="object-cover object-center w-full h-full hover:scale-105 transition-transform duration-500"
+                      priority
                     />
                   </div>
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white rounded-3xl">
@@ -201,6 +202,17 @@ export default function IdentityPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
+                          <div className="flex justify-center mb-4">
+                            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20">
+                              <Image 
+                                src={profileImage} 
+                                alt="Preview" 
+                                width={80} 
+                                height={80} 
+                                className="object-cover object-center w-full h-full"
+                              />
+                            </div>
+                          </div>
                           <div className="space-y-2">
                             <Label htmlFor="fullName">Full Name</Label>
                             <Input id="fullName" name="fullName" defaultValue={displayName} required />
@@ -212,7 +224,7 @@ export default function IdentityPage() {
                           <div className="space-y-2">
                             <Label htmlFor="profilePhotoUrl">Profile Photo URL</Label>
                             <Input id="profilePhotoUrl" name="profilePhotoUrl" defaultValue={profileImage} placeholder="https://example.com/photo.jpg" />
-                            <p className="text-[10px] text-muted-foreground">You can also click your photo directly to upload an image from your device.</p>
+                            <p className="text-[10px] text-muted-foreground">You can also click your photo directly on the profile page to upload from your device.</p>
                           </div>
                         </div>
                         <DialogFooter>

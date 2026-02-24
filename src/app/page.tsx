@@ -1,3 +1,4 @@
+
 "use client"
 
 import { NavSidebar } from "@/components/layout/nav-sidebar"
@@ -75,7 +76,7 @@ export default function Dashboard() {
                       alt="Profile" 
                       width={96} 
                       height={96} 
-                      className="object-cover w-full h-full"
+                      className="object-cover object-center w-full h-full"
                     />
                   </div>
                   <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1.5 rounded-full border-2 border-background">
@@ -135,7 +136,7 @@ export default function Dashboard() {
                   <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-all">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-lg bg-border flex items-center justify-center overflow-hidden">
-                        <Image src={app.icon || ""} alt={app.name} width={40} height={40} className="object-cover" />
+                        <Image src={app.icon || ""} alt={app.name} width={40} height={40} className="object-cover object-center" />
                       </div>
                       <div>
                         <p className="font-medium">{app.name}</p>

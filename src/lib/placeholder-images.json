@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "profile-user",
-      "description": "Professional profile photo for digital identity",
-      "imageUrl": "https://images.unsplash.com/photo-1595211877493-41a4e5f236b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdHxlbnwwfHx8fDE3NzE4ODE0MDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "professional headshot"
+      "description": "Clear professional headshot for digital identity",
+      "imageUrl": "https://images.unsplash.com/photo-1521146764736-56c929d59c83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwZXJzb24lMjBmYWNlfGVufDB8fHx8MTc3MTg0ODAzNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person face"
     },
     {
       "id": "platform-logo-1",
