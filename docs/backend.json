@@ -1,0 +1,554 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user's core digital identity on the Trust ID platform, serving as the central identity for all associated data and activities.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "User's registered phone number, used for login and identification. (Note: Authentication details like OTP are handled by an external system as per security best practices)."
+        },
+        "profilePhotoUrl": {
+          "type": "string",
+          "description": "URL to the user's profile photograph, displayed on their digital identity card.",
+          "format": "uri"
+        },
+        "fullName": {
+          "type": "string",
+          "description": "The user's full legal or preferred name as displayed on their digital identity card."
+        },
+        "username": {
+          "type": "string",
+          "description": "A unique username or Trust ID chosen by the user for identification within the platform."
+        },
+        "verificationStatus": {
+          "type": "string",
+          "description": "The current verification status of the user's overall identity.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "trustLevel": {
+          "type": "string",
+          "description": "The overall trust level associated with the user's verified identity attributes.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user's account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the user's account information was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "phoneNumber",
+        "fullName",
+        "username",
+        "verificationStatus",
+        "trustLevel",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "IdentityAttribute": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "IdentityAttribute",
+      "type": "object",
+      "description": "Stores individual verifiable attributes of a user's digital identity, allowing for granular verification and consent management.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the IdentityAttribute entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who owns this identity attribute. (Relationship: User 1:N IdentityAttribute)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the identity attribute (e.g., 'Email', 'DateOfBirth', 'AddressLine1', 'GovernmentIDNumber')."
+        },
+        "value": {
+          "type": "string",
+          "description": "The actual value of the identity attribute."
+        },
+        "isVerified": {
+          "type": "boolean",
+          "description": "Boolean indicating if this specific attribute has been verified."
+        },
+        "verificationDate": {
+          "type": "string",
+          "description": "Timestamp when this attribute was last verified, if applicable.",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "description": "The source or method of the attribute's verification (e.g., 'Self-declared', 'Government ID', 'Third-Party Provider', 'Manual Review')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the identity attribute was added to the user's profile.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the identity attribute's value or status was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "value",
+        "isVerified",
+        "source",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Platform": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Platform",
+      "type": "object",
+      "description": "Represents a third-party application or service that integrates with Trust ID to request user data and consent.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Platform entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The unique, human-readable name of the third-party platform."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the platform and its purpose."
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "The primary website URL of the platform.",
+          "format": "uri"
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL to the platform's logo image, used for display in the Trust ID app.",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the platform was registered with Trust ID.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the platform's information was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "websiteUrl",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "PermissionGrant": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PermissionGrant",
+      "type": "object",
+      "description": "Records a user's consent or denial for a specific third-party platform to access a set of identity attributes.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the PermissionGrant entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who granted or denied this permission. (Relationship: User 1:N PermissionGrant)"
+        },
+        "platformId": {
+          "type": "string",
+          "description": "Reference to the Platform that requested this permission. (Relationship: Platform 1:N PermissionGrant)"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the permission grant (e.g., 'Pending', 'Approved', 'Denied', 'Revoked')."
+        },
+        "requestedAttributeNames": {
+          "type": "array",
+          "description": "An array of names of identity attributes that the platform initially requested access to (e.g., ['fullName', 'email', 'dateOfBirth']).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "grantedAttributeNames": {
+          "type": "array",
+          "description": "An array of names of identity attributes that the user explicitly approved access for. This may be a subset of 'requestedAttributeNames'.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requestDate": {
+          "type": "string",
+          "description": "Timestamp when the platform initially requested access to the user's data.",
+          "format": "date-time"
+        },
+        "statusChangeDate": {
+          "type": "string",
+          "description": "Timestamp when the permission status was last changed (e.g., approved, denied, revoked).",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this permission grant record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time this permission grant record was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "platformId",
+        "status",
+        "requestedAttributeNames",
+        "requestDate",
+        "statusChangeDate",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ActivityLogEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ActivityLogEntry",
+      "type": "object",
+      "description": "Provides a chronological and transparent record of significant user account and security events for auditability and user awareness.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ActivityLogEntry entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User associated with this activity log entry. (Relationship: User 1:N ActivityLogEntry)"
+        },
+        "eventType": {
+          "type": "string",
+          "description": "The type of activity or security event (e.g., 'Login', 'Logout', 'VerificationAttempt', 'PermissionApproved', 'SecurityAlert', 'ProfileUpdated', 'DeviceAdded')."
+        },
+        "eventTimestamp": {
+          "type": "string",
+          "description": "Timestamp when the activity or event occurred.",
+          "format": "date-time"
+        },
+        "ipAddress": {
+          "type": "string",
+          "description": "The IP address from which the activity originated, if available.",
+          "format": "ipv4"
+        },
+        "deviceInfo": {
+          "type": "string",
+          "description": "Information about the device used for the activity (e.g., user agent string or a simplified device name)."
+        },
+        "details": {
+          "type": "string",
+          "description": "Additional contextual details about the event, potentially as a JSON string for structured data or plain text for simple messages."
+        },
+        "aiClarification": {
+          "type": "string",
+          "description": "An AI-generated plain-language explanation of the event and its potential security implications, aiding user understanding."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this activity log entry was recorded in the system.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "eventType",
+        "eventTimestamp",
+        "createdAt"
+      ]
+    },
+    "UserDevice": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserDevice",
+      "type": "object",
+      "description": "Manages information about devices a user has used to log into the Trust ID platform, enabling device management and security features.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserDevice entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who owns this device. (Relationship: User 1:N UserDevice)"
+        },
+        "deviceName": {
+          "type": "string",
+          "description": "A user-friendly name for the device (e.g., 'My Laptop', 'iPhone 13', 'Work PC')."
+        },
+        "deviceType": {
+          "type": "string",
+          "description": "The general type of device (e.g., 'Mobile', 'Desktop', 'Tablet', 'Smartwatch')."
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "The full user agent string of the device at the time of login, providing detailed browser and OS information."
+        },
+        "lastUsedIpAddress": {
+          "type": "string",
+          "description": "The IP address from which the device last accessed the platform.",
+          "format": "ipv4"
+        },
+        "firstLoginAt": {
+          "type": "string",
+          "description": "Timestamp of the first successful login recorded from this device.",
+          "format": "date-time"
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "description": "Timestamp of the most recent successful login from this device.",
+          "format": "date-time"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Boolean indicating if the device currently has an active session on the platform."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the device record was first created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the device record was updated (e.g., last login time, status change).",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "deviceName",
+        "deviceType",
+        "firstLoginAt",
+        "lastLoginAt",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserSetting": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserSetting",
+      "type": "object",
+      "description": "Stores user-specific preferences and security configurations for their Trust ID account.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserSetting entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User to whom these settings belong. (Relationship: User 1:1 UserSetting)"
+        },
+        "pinEnabled": {
+          "type": "boolean",
+          "description": "Boolean indicating if a PIN (Personal Identification Number) is enabled for the user's account for quick access or transaction confirmation."
+        },
+        "dataVisibilityPublic": {
+          "type": "boolean",
+          "description": "Boolean controlling a general preference if some user data is visible publicly by default or requires explicit opt-in."
+        },
+        "themeMode": {
+          "type": "string",
+          "description": "The user's preferred theme mode for the application interface ('light' or 'dark')."
+        },
+        "biometricLoginEnabled": {
+          "type": "boolean",
+          "description": "Boolean indicating if biometric login (e.g., fingerprint, facial recognition) is enabled for the user's account (future feature)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user settings were first created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the user settings were updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "pinEnabled",
+        "dataVisibilityPublic",
+        "themeMode",
+        "biometricLoginEnabled",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores core user profile information. Documents are owned by the respective user. Includes denormalized 'id' field matching the document ID for authorization and indexing.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, typically matching request.auth.uid."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/identityAttributes/{attributeId}",
+        "definition": {
+          "entityName": "IdentityAttribute",
+          "schema": {
+            "$ref": "#/backend/entities/IdentityAttribute"
+          },
+          "description": "Stores individual verifiable identity attributes for a specific user. Owned by the user. Includes denormalized 'userId' field for authorization independence and efficient querying.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the owning user, matching request.auth.uid."
+            },
+            {
+              "name": "attributeId",
+              "description": "The unique identifier for a specific identity attribute (e.g., 'email', 'dateOfBirth')."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/platforms/{platformId}",
+        "definition": {
+          "entityName": "Platform",
+          "schema": {
+            "$ref": "#/backend/entities/Platform"
+          },
+          "description": "Stores information about integrated third-party platforms. Globally readable by all authenticated users, writeable only by system administrators. Includes denormalized 'id' field matching the document ID.",
+          "params": [
+            {
+              "name": "platformId",
+              "description": "The unique identifier of the third-party platform."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/permissionGrants/{grantId}",
+        "definition": {
+          "entityName": "PermissionGrant",
+          "schema": {
+            "$ref": "#/backend/entities/PermissionGrant"
+          },
+          "description": "Records a user's consent status for a specific platform to access their data. Owned by the user. Includes denormalized 'userId' field for authorization independence and efficient querying.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who granted the permission, matching request.auth.uid."
+            },
+            {
+              "name": "grantId",
+              "description": "The unique identifier for a specific permission grant."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/activityLog/{logId}",
+        "definition": {
+          "entityName": "ActivityLogEntry",
+          "schema": {
+            "$ref": "#/backend/entities/ActivityLogEntry"
+          },
+          "description": "Provides a chronological log of significant user account and security events. Owned by the user. Includes denormalized 'userId' field for authorization independence and efficient querying.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user associated with the activity, matching request.auth.uid."
+            },
+            {
+              "name": "logId",
+              "description": "The unique identifier for a specific activity log entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/devices/{deviceId}",
+        "definition": {
+          "entityName": "UserDevice",
+          "schema": {
+            "$ref": "#/backend/entities/UserDevice"
+          },
+          "description": "Manages information about devices a user has used to log into the platform. Owned by the user. Includes denormalized 'userId' field for authorization independence and efficient querying.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns this device, matching request.auth.uid."
+            },
+            {
+              "name": "deviceId",
+              "description": "The unique identifier for a specific user device."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/userSettings",
+        "definition": {
+          "entityName": "UserSetting",
+          "schema": {
+            "$ref": "#/backend/entities/UserSetting"
+          },
+          "description": "Stores user-specific preferences and security configurations as a singleton document for each user. Owned by the user. The document ID is 'userSettings'. Includes denormalized 'userId' field for authorization independence and efficient querying.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user whose settings are stored, matching request.auth.uid."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure for Trust ID is designed following a user-centric, hierarchical model to ensure strong authorization independence, simplified security rules, and efficient querying (QAPs). \n\n**Authorization Independence:** All user-specific data (IdentityAttribute, PermissionGrant, ActivityLogEntry, UserDevice, UserSetting) is placed in subcollections directly under the respective user's document, e.g., `/users/{userId}/identityAttributes/{attributeId}`. This design inherently denormalizes the `userId` into the document path. Consequently, security rules can directly compare `request.auth.uid` with the `{userId}` wildcard in the path, eliminating the need for expensive and complex `get()` calls to parent documents for authorization. This ensures that creating or updating subcollection documents is an atomic operation, independent of the parent's data state for authorization purposes. Additionally, each subcollection document will also contain a `userId` field, providing a denormalized reference for indexing and data integrity, further supporting authorization independence by allowing rules to check `resource.data.userId == request.auth.uid` if needed, without `get()`. \n\n**QAPs (Rules are not Filters):**\n1.  **User-Owned Data:** For all collections under `/users/{userId}/...` (e.g., `identityAttributes`, `permissionGrants`, `activityLog`, `devices`, `userSettings`), query access is inherently constrained to the authenticated user's data. A user can only `list` documents within their own `/users/{uid}/` path, as `request.auth.uid` must match the `{userId}` in the path for read access. This ensures that no unauthorized data is returned in a `list` operation, as the query is implicitly scoped by the security rules, fulfilling the QAP principle.\n2.  **Global Data:** The `/platforms/{platformId}` collection stores information about third-party platforms. These are intended to be globally readable (e.g., for users to discover and grant permissions). By placing them in a top-level collection, we segregate their security posture. `list` operations on `/platforms` can be broadly permitted for all authenticated users (or even unauthenticated if public discovery is needed), as there's no sensitive user data mixed in, thus allowing QAPs to apply effectively to this global dataset.\n\n**Structural Segregation:** The clear separation between `/users/{userId}/` for private, user-owned data and `/platforms/{platformId}` for global, public data ensures that each collection has a homogeneous security posture. This simplifies security rules significantly, as the access requirements for documents within a given collection are uniform. For instance, all documents in `/users/{userId}/activityLog` will always be owned by `{userId}`, and all documents in `/platforms` will be public read. This prevents complex conditional logic within rules that would arise from mixing different types of data or access levels in a single collection."
+  }
+}

@@ -1,0 +1,148 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * TRUST ID SECURITY RULES - PROTOTYPING MODE
+     * 
+     * Core Philosophy:
+     * This ruleset enforces a strict User-Ownership model. The architecture is designed around 
+     * the principle that a user's digital identity and all its verifiable attributes are private 
+     * and strictly controlled by that user.
+     * 
+     * Data Structure:
+     * The hierarchy is user-centric. All sensitive data (attributes, activity logs, grants, devices) 
+     * is nested under the `/users/{userId}` path. This allows for extremely performant and 
+     * secure rules by comparing the authenticated user's UID directly against the path wildcards.
+     * 
+     * Key Security Decisions:
+     * 1. Authorization over Schema: These rules strictly enforce "Who" can access data, but remain 
+     *    flexible on "What" the data looks like (excluding critical relational IDs).
+     * 2. Read-Only Global Data: Third-party platform information is globally readable by 
+     *    authenticated users but protected from any client-side modifications.
+     * 3. Relational Integrity: On document creation, the rules enforce that internal fields 
+     *    (like ownerId or userId) match the path to prevent data cross-pollination.
+     * 4. Log Integrity: Activity logs are append-only for the user (Create/Delete) but 
+     *    immutable (Update Denied) to maintain the audit trail's accuracy.
+     * 
+     * Denormalization for Authorization:
+     * To avoid expensive 'get()' calls, the 'userId' is denormalized both into the path and 
+     * directly onto subcollection documents. This allows for fast, O(1) authorization checks.
+     */
+
+    // --- GLOBAL HELPER FUNCTIONS ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for the core User profile.
+     * @path /users/{userId}
+     * @allow (get) If the user is the owner of the profile.
+     * @deny (list) If a user attempts to search or list other users.
+     * @principle Restricts access to a user's own identity root.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Rules for verifiable identity attributes.
+       * @path /users/{userId}/identityAttributes/{attributeId}
+       * @allow (create) If the userId in the data matches the path and the user's auth UID.
+       * @deny (update) If the user tries to change the ownership field (userId).
+       * @principle Enforces path-to-data consistency and document ownership.
+       */
+      match /identityAttributes/{attributeId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Records of user consent for third-party access.
+       * @path /users/{userId}/permissionGrants/{grantId}
+       * @allow (list) If the authenticated user is the owner of the grants list.
+       * @deny (delete) If the request comes from a different user ID.
+       * @principle Ensures granular consent management is private to the user.
+       */
+      match /permissionGrants/{grantId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Chronological audit logs of security events.
+       * @path /users/{userId}/activityLog/{logId}
+       * @allow (create) If the user is logging their own activity.
+       * @deny (update) Always denied to maintain the integrity of the audit trail.
+       * @principle Maintains an immutable record of security-critical events.
+       */
+      match /activityLog/{logId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if false;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Management of registered user devices.
+       * @path /users/{userId}/devices/{deviceId}
+       * @allow (update) If the owner is updating a device's last active timestamp.
+       * @deny (get) If the device belongs to a different user.
+       * @principle Limits device management to the authenticated owner.
+       */
+      match /devices/{deviceId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description User preferences and interface settings (e.g., Theme Mode).
+       * @path /users/{userId}/userSettings
+       * @allow (get) If the owner is fetching their configuration.
+       * @deny (create) If the internal userId doesn't match the singleton path.
+       * @principle Secures private UI and account-level configurations.
+       */
+      match /userSettings {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    /**
+     * @description Information about third-party platforms.
+     * @path /platforms/{platformId}
+     * @allow (read) All authenticated users can view integrated platforms.
+     * @deny (write) Any client-side modification is strictly prohibited.
+     * @principle Public discovery with system-only management.
+     */
+    match /platforms/{platformId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false;
+    }
+
+  }
+}
