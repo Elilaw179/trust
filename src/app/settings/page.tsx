@@ -22,7 +22,8 @@ import {
   User as UserIcon,
   CreditCard,
   Link as LinkIcon,
-  Bell
+  Bell,
+  CheckCircle2
 } from "lucide-react"
 import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from "@/firebase"
 import { doc, serverTimestamp } from "firebase/firestore"
@@ -46,6 +47,7 @@ export default function SettingsPage() {
   const { user, isUserLoading: isAuthLoading } = useUser()
   const firestore = useFirestore()
   const { toast } = useToast()
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const settingsRef = useMemoFirebase(() => {
     if (!firestore || !user) return null
@@ -56,6 +58,7 @@ export default function SettingsPage() {
 
   const handleToggle = (key: string, value: boolean) => {
     if (!settingsRef) return
+    setIsUpdating(true)
 
     const updatedData = {
       [key]: value,
@@ -63,13 +66,14 @@ export default function SettingsPage() {
       updatedAt: serverTimestamp(),
     }
 
-    // Initialize if it doesn't exist
     if (!settings) {
-      updatedData.createdAt = serverTimestamp()
-      updatedData.themeMode = "light"
-      updatedData.pinEnabled = false
-      updatedData.dataVisibilityPublic = false
-      updatedData.biometricLoginEnabled = false
+      Object.assign(updatedData, {
+        createdAt: serverTimestamp(),
+        themeMode: "light",
+        pinEnabled: false,
+        dataVisibilityPublic: false,
+        biometricLoginEnabled: false,
+      })
     }
 
     setDocumentNonBlocking(settingsRef, updatedData, { merge: true })
@@ -78,64 +82,35 @@ export default function SettingsPage() {
       title: "Setting Updated",
       description: `Your preferences have been saved securely.`
     })
+    
+    setTimeout(() => setIsUpdating(false), 300)
   }
 
   if (isAuthLoading || isSettingsLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <NavSidebar />
-      <main className="flex-1 p-4 md:p-8 lg:p-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <main className="flex-1 p-4 md:p-8 lg:p-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-7xl mx-auto w-full">
         <header>
           <h1 className="text-3xl font-headline font-bold">Settings</h1>
           <p className="text-muted-foreground">Manage your account security and privacy preferences.</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1 space-y-1">
-            <nav className="flex flex-col space-y-1">
-              <SettingsNavItem 
-                label="Account Information" 
-                icon={UserIcon} 
-                active={activeTab === "account"} 
-                onClick={() => setActiveTab("account")} 
-              />
-              <SettingsNavItem 
-                label="Security & Login" 
-                icon={Shield} 
-                active={activeTab === "security"} 
-                onClick={() => setActiveTab("security")} 
-              />
-              <SettingsNavItem 
-                label="Devices & Sessions" 
-                icon={Smartphone} 
-                active={activeTab === "devices"} 
-                onClick={() => setActiveTab("devices")} 
-              />
-              <SettingsNavItem 
-                label="Connected Apps" 
-                icon={LinkIcon} 
-                active={activeTab === "apps"} 
-                onClick={() => setActiveTab("apps")} 
-              />
-              <SettingsNavItem 
-                label="Data & Privacy" 
-                icon={Eye} 
-                active={activeTab === "privacy"} 
-                onClick={() => setActiveTab("privacy")} 
-              />
-              <SettingsNavItem 
-                label="Billing & Plans" 
-                icon={CreditCard} 
-                active={activeTab === "billing"} 
-                onClick={() => setActiveTab("billing")} 
-              />
+          <div className="lg:col-span-1 space-y-1 overflow-x-auto pb-4 lg:pb-0">
+            <nav className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1">
+              <SettingsNavItem label="Account" icon={UserIcon} active={activeTab === "account"} onClick={() => setActiveTab("account")} />
+              <SettingsNavItem label="Security" icon={Shield} active={activeTab === "security"} onClick={() => setActiveTab("security")} />
+              <SettingsNavItem label="Privacy" icon={Eye} active={activeTab === "privacy"} onClick={() => setActiveTab("privacy")} />
+              <SettingsNavItem label="Devices" icon={Smartphone} active={activeTab === "devices"} onClick={() => setActiveTab("devices")} />
+              <SettingsNavItem label="Apps" icon={LinkIcon} active={activeTab === "apps"} onClick={() => setActiveTab("apps")} />
             </nav>
           </div>
 
@@ -146,22 +121,37 @@ export default function SettingsPage() {
                   <CardTitle className="text-xl">Account Profile</CardTitle>
                   <CardDescription>Personal information associated with your Trust ID.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Email Address</Label>
-                      <div className="p-2 bg-secondary/50 rounded-md text-sm font-medium">
-                        {user?.email}
-                      </div>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center gap-6 p-4 rounded-2xl bg-secondary/30">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary border-2 border-primary/20">
+                      {user?.email?.charAt(0).toUpperCase()}
                     </div>
-                    <div className="space-y-2">
-                      <Label>Full Name</Label>
-                      <div className="p-2 bg-secondary/50 rounded-md text-sm font-medium">
-                        {user?.displayName || "Not set"}
+                    <div>
+                      <p className="text-sm text-muted-foreground">Authenticated User</p>
+                      <h3 className="text-lg font-bold">{user?.email}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <span className="text-xs font-medium text-green-600">Secure Session Active</span>
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">Edit Public Profile</Button>
+                  <Separator />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground">Login Method</Label>
+                      <div className="flex items-center gap-2 p-3 bg-secondary/20 rounded-xl border">
+                        <Key className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold capitalize">{user?.providerData[0]?.providerId || "Password"}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground">Unique Trust ID</Label>
+                      <div className="flex items-center gap-2 p-3 bg-secondary/20 rounded-xl border">
+                        <Shield className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-mono">{user?.uid.substring(0, 12)}...</span>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -184,6 +174,7 @@ export default function SettingsPage() {
                       <Switch 
                         checked={settings?.biometricLoginEnabled ?? false} 
                         onCheckedChange={(checked) => handleToggle("biometricLoginEnabled", checked)}
+                        disabled={isUpdating}
                       />
                     </div>
                     <Separator />
@@ -192,7 +183,7 @@ export default function SettingsPage() {
                         <Label className="text-base">Two-Factor Authentication</Label>
                         <p className="text-sm text-muted-foreground">Highly recommended for identity protection.</p>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => toast({ title: "2FA Module", description: "Loading authentication configuration..." })}>Configure</Button>
+                      <Button variant="outline" size="sm" onClick={() => toast({ title: "MFA Configuration", description: "Multi-factor authentication module is coming in the next update." })}>Configure</Button>
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between">
@@ -203,6 +194,7 @@ export default function SettingsPage() {
                       <Switch 
                         checked={settings?.pinEnabled ?? false} 
                         onCheckedChange={(checked) => handleToggle("pinEnabled", checked)}
+                        disabled={isUpdating}
                       />
                     </div>
                   </CardContent>
@@ -219,7 +211,7 @@ export default function SettingsPage() {
                     <div className="flex flex-wrap gap-4">
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" className="text-destructive hover:bg-destructive/10 border-destructive/20">Deactivate Account</Button>
+                          <Button variant="outline" className="text-destructive hover:bg-destructive/10 border-destructive/20 h-10">Deactivate Account</Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
@@ -257,6 +249,7 @@ export default function SettingsPage() {
                     <Switch 
                       checked={settings?.dataVisibilityPublic ?? false} 
                       onCheckedChange={(checked) => handleToggle("dataVisibilityPublic", checked)}
+                      disabled={isUpdating}
                     />
                   </div>
                   <Separator />
@@ -293,14 +286,14 @@ function SettingsNavItem({ label, icon: Icon, active, onClick }: { label: string
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-3 ${
+      className={`whitespace-nowrap lg:w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-3 ${
         active 
           ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
           : 'text-muted-foreground hover:bg-secondary'
       }`}
     >
       <Icon className={`w-4 h-4 ${active ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
-      {label}
+      <span className="hidden sm:inline">{label}</span>
     </button>
   )
 }
