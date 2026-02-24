@@ -118,12 +118,12 @@ service cloud.firestore {
 
       /**
        * @description User preferences and interface settings (e.g., Theme Mode).
-       * @path /users/{userId}/userSettings
+       * @path /users/{userId}/userSettings/{settingId}
        * @allow (get) If the owner is fetching their configuration.
        * @deny (create) If the internal userId doesn't match the singleton path.
        * @principle Secures private UI and account-level configurations.
        */
-      match /userSettings {
+      match /userSettings/{settingId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
         allow create: if isOwner(userId) && request.resource.data.userId == userId;
