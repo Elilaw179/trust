@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Shield, Sparkles, LogIn, Mail, Lock, ArrowRight } from "lucide-react"
+import { Sparkles, Mail, Lock, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -12,21 +12,22 @@ import { Label } from "@/components/ui/label"
 import { useAuth, useUser } from "@/firebase"
 import { signInWithEmailAndPassword } from "firebase/auth"
 import { useToast } from "@/hooks/use-toast"
+import { BrandLogo } from "@/components/layout/brand-logo"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const auth = useAuth()
-  const { user } = useUser()
+  const { user, isUserLoading } = useUser()
   const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
-    if (user) {
+    if (user && !isUserLoading) {
       router.push("/")
     }
-  }, [user, router])
+  }, [user, isUserLoading, router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,6 +50,14 @@ export default function LoginPage() {
     }
   }
 
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
       {/* Background Decor */}
@@ -57,12 +66,10 @@ export default function LoginPage() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent rounded-full blur-[120px]" />
       </div>
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-500">
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-3">
-            <div className="bg-primary p-3 rounded-2xl shadow-xl shadow-primary/20">
-              <Shield className="w-8 h-8 text-primary-foreground" />
-            </div>
+            <BrandLogo iconClassName="w-12 h-12" />
             <h1 className="text-3xl font-headline font-bold tracking-tight">Trust ID</h1>
           </div>
         </div>
@@ -107,7 +114,7 @@ export default function LoginPage() {
                 </div>
               </div>
               <Button type="submit" className="w-full h-11 text-base font-bold gap-2" disabled={loading}>
-                {loading ? "Signing in..." : (
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                   <>
                     Sign In <ArrowRight className="w-4 h-4" />
                   </>

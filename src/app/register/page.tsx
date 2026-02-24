@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Shield, UserPlus, Mail, Lock, User, ArrowRight } from "lucide-react"
+import { Sparkles, Mail, Lock, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { useAuth, useUser } from "@/firebase"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { useToast } from "@/hooks/use-toast"
+import { BrandLogo } from "@/components/layout/brand-logo"
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("")
@@ -19,15 +20,15 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const auth = useAuth()
-  const { user } = useUser()
+  const { user, isUserLoading } = useUser()
   const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
-    if (user) {
+    if (user && !isUserLoading) {
       router.push("/")
     }
-  }, [user, router])
+  }, [user, isUserLoading, router])
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,6 +58,14 @@ export default function RegisterPage() {
     }
   }
 
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
@@ -64,12 +73,10 @@ export default function RegisterPage() {
         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent rounded-full blur-[120px]" />
       </div>
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-500">
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-3">
-            <div className="bg-primary p-3 rounded-2xl">
-              <Shield className="w-8 h-8 text-primary-foreground" />
-            </div>
+            <BrandLogo iconClassName="w-12 h-12" />
             <h1 className="text-3xl font-headline font-bold">Trust ID</h1>
           </div>
         </div>
@@ -125,7 +132,7 @@ export default function RegisterPage() {
                 </div>
               </div>
               <Button type="submit" className="w-full h-11 text-base font-bold gap-2 mt-2" disabled={loading}>
-                {loading ? "Creating account..." : (
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                   <>
                     Create Account <ArrowRight className="w-4 h-4" />
                   </>

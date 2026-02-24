@@ -3,12 +3,13 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Shield, User, ShieldCheck, Activity, Settings, LayoutDashboard, LogOut, LogIn } from "lucide-react"
+import { User, ShieldCheck, Activity, Settings, LayoutDashboard, LogOut, LogIn, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth, useUser } from "@/firebase"
 import { signOut } from "firebase/auth"
 import { ThemeToggle } from "./theme-toggle"
 import { Button } from "@/components/ui/button"
+import { BrandLogo } from "./brand-logo"
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -30,12 +31,10 @@ export function NavSidebar() {
   }
 
   return (
-    <aside className="w-64 border-r bg-card hidden md:flex flex-col h-screen sticky top-0">
+    <aside className="w-64 border-r bg-card hidden md:flex flex-col h-screen sticky top-0 transition-all duration-300">
       <div className="p-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="bg-primary p-2 rounded-lg group-hover:bg-accent transition-colors">
-            <Shield className="w-6 h-6 text-primary-foreground" />
-          </div>
+          <BrandLogo iconClassName="group-hover:scale-110 transition-transform duration-300" />
           <span className="font-headline text-xl font-bold tracking-tight">Trust ID</span>
         </Link>
         <ThemeToggle />
@@ -63,35 +62,37 @@ export function NavSidebar() {
       </nav>
 
       <div className="p-4 mt-auto border-t">
-        {!isUserLoading && (
-          user ? (
-            <div className="space-y-4">
-              <div className="bg-secondary rounded-xl p-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                  {user.email?.charAt(0).toUpperCase() || "U"}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold truncate">{user.email}</p>
-                  <p className="text-[10px] text-muted-foreground">Standard User</p>
-                </div>
+        {isUserLoading ? (
+          <div className="flex justify-center p-4">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : user ? (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+            <div className="bg-secondary rounded-xl p-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                {user.email?.charAt(0).toUpperCase() || "U"}
               </div>
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                onClick={handleSignOut}
-              >
-                <LogOut className="w-5 h-5" />
-                Logout
-              </Button>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold truncate">{user.email}</p>
+                <p className="text-[10px] text-muted-foreground uppercase">Verified Account</p>
+              </div>
             </div>
-          ) : (
-            <Link href="/login">
-              <Button className="w-full gap-2">
-                <LogIn className="w-4 h-4" />
-                Sign In
-              </Button>
-            </Link>
-          )
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-5 h-5" />
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <Link href="/login" className="animate-in fade-in">
+            <Button className="w-full gap-2">
+              <LogIn className="w-4 h-4" />
+              Sign In
+            </Button>
+          </Link>
         )}
       </div>
     </aside>

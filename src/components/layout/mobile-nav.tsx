@@ -4,13 +4,14 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, Shield, LayoutDashboard, User, ShieldCheck, Activity, Settings, LogOut } from "lucide-react"
+import { Menu, LayoutDashboard, User, ShieldCheck, Activity, Settings, LogOut, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useAuth, useUser } from "@/firebase"
 import { signOut } from "firebase/auth"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "./theme-toggle"
+import { BrandLogo } from "./brand-logo"
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -24,14 +25,12 @@ export function MobileNav() {
   const [open, setOpen] = React.useState(false)
   const pathname = usePathname()
   const auth = useAuth()
-  const { user } = useUser()
+  const { user, isUserLoading } = useUser()
 
   return (
     <div className="md:hidden flex items-center justify-between p-4 bg-card border-b sticky top-0 z-50">
       <Link href="/" className="flex items-center gap-2 group">
-        <div className="bg-primary p-1.5 rounded-lg">
-          <Shield className="w-5 h-5 text-primary-foreground" />
-        </div>
+        <BrandLogo />
         <span className="font-headline text-lg font-bold tracking-tight">Trust ID</span>
       </Link>
 
@@ -46,7 +45,7 @@ export function MobileNav() {
           <SheetContent side="left" className="w-[280px] p-0">
             <SheetHeader className="p-6 text-left border-b">
               <SheetTitle className="flex items-center gap-2">
-                <Shield className="w-6 h-6 text-primary" />
+                <BrandLogo />
                 Trust ID
               </SheetTitle>
             </SheetHeader>
@@ -72,7 +71,11 @@ export function MobileNav() {
               })}
               
               <div className="pt-4 mt-4 border-t">
-                {user ? (
+                {isUserLoading ? (
+                  <div className="flex justify-center p-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : user ? (
                   <Button 
                     variant="ghost" 
                     className="w-full justify-start gap-3 text-destructive hover:bg-destructive/10"

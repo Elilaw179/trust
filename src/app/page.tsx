@@ -1,22 +1,37 @@
+
+"use client"
+
 import { NavSidebar } from "@/components/layout/nav-sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Shield, CheckCircle2, AlertCircle, ArrowRight, Activity, Smartphone } from "lucide-react"
+import { Shield, CheckCircle2, ArrowRight, Activity, Smartphone, Loader2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
+import { useUser } from "@/firebase"
 
 export default function Dashboard() {
+  const { user, isUserLoading } = useUser()
   const userImage = PlaceHolderImages.find(img => img.id === "profile-user")
+
+  if (isUserLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen">
       <NavSidebar />
-      <main className="flex-1 p-4 md:p-8 lg:p-12 space-y-8">
+      <main className="flex-1 p-4 md:p-8 lg:p-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-headline font-bold text-foreground">Welcome back, Elisha</h1>
+            <h1 className="text-3xl font-headline font-bold text-foreground">
+              Welcome back, {user?.displayName || user?.email?.split('@')[0] || "User"}
+            </h1>
             <p className="text-muted-foreground">Manage your secure identity and sharing permissions.</p>
           </div>
           <div className="flex items-center gap-4">
@@ -28,7 +43,6 @@ export default function Dashboard() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Identity Card Mini */}
           <Card className="lg:col-span-2 overflow-hidden border-none shadow-lg bg-gradient-to-br from-primary/10 via-background to-accent/10">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
@@ -51,7 +65,6 @@ export default function Dashboard() {
                       width={96} 
                       height={96} 
                       className="object-cover"
-                      data-ai-hint="professional headshot"
                     />
                   </div>
                   <div className="absolute -bottom-1 -right-1 bg-primary text-white p-1.5 rounded-full border-2 border-background">
@@ -59,8 +72,8 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="space-y-2 text-center sm:text-left">
-                  <h3 className="text-2xl font-bold">Elisha Sunday</h3>
-                  <p className="text-sm font-code text-muted-foreground">trust.id/elisha.sunday</p>
+                  <h3 className="text-2xl font-bold">{user?.displayName || "Elisha Sunday"}</h3>
+                  <p className="text-sm font-code text-muted-foreground">trust.id/{user?.email?.split('@')[0] || "user"}</p>
                   <div className="flex flex-wrap justify-center sm:justify-start gap-2">
                     <Badge variant="outline">Email Verified</Badge>
                     <Badge variant="outline">Phone Verified</Badge>
@@ -71,20 +84,19 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
           <Card className="h-full border-none shadow-md">
             <CardHeader>
               <CardTitle className="text-lg">Security Health</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-4">
+              <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-4 hover:scale-[1.02] transition-transform">
                 <Shield className="w-8 h-8 text-green-600 shrink-0" />
                 <div>
                   <p className="font-semibold text-green-900">Maximum Trust</p>
                   <p className="text-xs text-green-700">All identity markers verified.</p>
                 </div>
               </div>
-              <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center gap-4">
+              <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center gap-4 hover:scale-[1.02] transition-transform">
                 <Smartphone className="w-8 h-8 text-blue-600 shrink-0" />
                 <div>
                   <p className="font-semibold text-blue-900">2 Devices Linked</p>
@@ -96,7 +108,6 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Permissions */}
           <Card className="border-none shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg">Recent Consents</CardTitle>
@@ -110,7 +121,7 @@ export default function Dashboard() {
                   { name: "Neon Analytics", date: "2 hours ago", status: "Approved", icon: PlaceHolderImages.find(i => i.id === "platform-logo-1")?.imageUrl },
                   { name: "Vercel Connect", date: "Yesterday", status: "Pending", icon: PlaceHolderImages.find(i => i.id === "platform-logo-2")?.imageUrl },
                 ].map((app, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-colors">
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-all">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-lg bg-border flex items-center justify-center overflow-hidden">
                         <Image src={app.icon || ""} alt={app.name} width={40} height={40} className="object-cover" />
@@ -127,7 +138,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Activity Mini */}
           <Card className="border-none shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg">Security Activity</CardTitle>
@@ -141,7 +151,7 @@ export default function Dashboard() {
                   { event: "Login Attempt", detail: "Success - Chrome Windows", time: "10m ago", icon: Activity },
                   { event: "ID Verified", detail: "Driver License Upload", time: "3d ago", icon: CheckCircle2 },
                 ].map((act, i) => (
-                  <div key={i} className="flex items-start gap-4 p-3">
+                  <div key={i} className="flex items-start gap-4 p-3 hover:bg-secondary/30 rounded-lg transition-colors">
                     <div className="mt-1 bg-primary/10 p-2 rounded-full">
                       <act.icon className="w-4 h-4 text-primary" />
                     </div>
